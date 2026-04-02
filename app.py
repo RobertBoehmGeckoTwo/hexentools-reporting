@@ -79,12 +79,15 @@ def submit():
         startup_id = request.form.get("startup_id")
         monat_id = request.form.get("monat_id")
 
+        app.logger.info(f"SUBMIT: startup_id={repr(startup_id)} monat_id={repr(monat_id)}")
+        app.logger.info(f"FORM DATA: {dict(request.form)}")
+
         if not startup_id or not monat_id:
             return jsonify({"error": "Start-up und Monat sind Pflichtfelder."}), 400
 
         fields = {
-            "Start-up": [{"id": startup_id}],
-            "Monat": [{"id": monat_id}],
+            "Start-up": [startup_id],
+            "Monat": [monat_id],
             "Allgemein": request.form.get("allgemein", ""),
             "Progress Product": request.form.get("progress_product", ""),
             "Progress Company": request.form.get("progress_company", ""),
@@ -93,11 +96,10 @@ def submit():
             "Herausforderungen": request.form.get("herausforderungen", ""),
         }
 
-        # Remove empty text fields
-        fields = {k: v for k, v in fields.items() if v != ""}
-        # Always keep linked records
-        fields["Start-up"] = [{"id": startup_id}]
-        fields["Monat"] = [{"id": monat_id}]
+        # Remove empty text fields but always keep linked records
+        fields = {k: v for k, v in fields.items() if v not in ("", [], None)}
+        fields["Start-up"] = [startup_id]
+        fields["Monat"] = [monat_id]
 
         # Create the record
         create_resp = requests.post(
