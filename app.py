@@ -4,9 +4,13 @@ Flask web app that serves an HTML form and submits data to Airtable.
 """
 
 import os
+import sys
 import requests
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
+from io import BytesIO
 from dotenv import load_dotenv
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "execution"))
 
 load_dotenv()
 
@@ -141,6 +145,39 @@ def submit():
     except requests.HTTPError as e:
         return jsonify({"error": f"Airtable-Fehler: {e.response.text}"}), 500
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/foerderberichte")
+def foerderberichte():
+    startups = airtable_get(TABLES["startup"], {"sort[0][field]": "Name", "sort[0][direction]": "asc"})
+    monate = airtable_get(TABLES["monate"])
+    monate.sort(key=lambda r: MONTH_ORDER.index(r["fields"].get("Name", "")) if r["fields"].get("Name", "") in MONTH_ORDER else 99)
+    return render_template("bericht_form.html", startups=startups, monate=monate)
+
+
+@app.route("/foerderberichte/generieren", methods=["POST"])
+def foerderberichte_generieren():
+    try:
+        from generate_report import generate_report
+
+        startup_id = request.form.get("startup_id")
+        monat_id = request.form.get("monat_id") or None  # empty string → None = full year
+
+        if not startup_id:
+            return jsonify({"error": "Bitte ein Start-up auswählen."}), 400
+
+        pdf_bytes, filename, record_id = generate_report(startup_id, monat_id)
+
+        return send_file(
+            BytesIO(pdf_bytes),
+            mimetype="application/pdf",
+            as_attachment=True,
+            download_name=filename,
+        )
+
+    except Exception as e:
+        app.logger.error(f"Bericht-Fehler: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 
