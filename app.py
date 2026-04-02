@@ -102,12 +102,15 @@ def submit():
         fields["Monat"] = [monat_id]
 
         # Create the record
+        payload = {"fields": fields}
+        app.logger.info(f"PAYLOAD: {payload}")
         create_resp = requests.post(
             f"https://api.airtable.com/v0/{BASE_ID}/{TABLES['reporting']}",
             headers=HEADERS,
-            json={"fields": fields},
+            json=payload,
         )
-        create_resp.raise_for_status()
+        if not create_resp.ok:
+            return jsonify({"error": f"Airtable-Fehler: {create_resp.text}", "debug_payload": payload}), 500
         record_id = create_resp.json()["id"]
 
         # Upload attachments
