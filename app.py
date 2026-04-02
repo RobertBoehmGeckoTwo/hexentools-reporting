@@ -54,7 +54,7 @@ def airtable_get(table_id, params=None):
 
 def upload_attachment(record_id, field_id, file_bytes, filename, content_type):
     """Upload a file attachment to an existing Airtable record field."""
-    url = f"https://content.airtable.com/v0/{BASE_ID}/{TABLES['reporting']}/{record_id}/{field_id}/uploadAttachment"
+    url = f"https://content.airtable.com/v0/{BASE_ID}/{record_id}/{field_id}/uploadAttachment"
     upload_headers = {
         "Authorization": f"Bearer {TOKEN}",
         "Content-Type": "application/octet-stream",
