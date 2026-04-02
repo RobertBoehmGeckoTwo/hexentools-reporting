@@ -53,14 +53,19 @@ def airtable_get(table_id, params=None):
 
 
 def upload_attachment(record_id, field_id, file_bytes, filename, content_type):
-    """Upload a file attachment to an existing Airtable record field."""
+    """Upload a file attachment to an existing Airtable record field (base64 JSON)."""
+    import base64
     url = f"https://content.airtable.com/v0/{BASE_ID}/{record_id}/{field_id}/uploadAttachment"
     upload_headers = {
         "Authorization": f"Bearer {TOKEN}",
-        "Content-Type": "application/octet-stream",
+        "Content-Type": "application/json",
     }
-    params = {"filename": filename, "contentType": content_type}
-    resp = requests.post(url, headers=upload_headers, params=params, data=file_bytes)
+    payload = {
+        "contentType": content_type,
+        "file": base64.b64encode(file_bytes).decode("utf-8"),
+        "filename": filename,
+    }
+    resp = requests.post(url, headers=upload_headers, json=payload)
     resp.raise_for_status()
     return resp.json()
 
