@@ -33,6 +33,11 @@ ATTACHMENT_FIELDS = [
     "fldBXLzOOpQP6lfkZ",  # Anhang 03
 ]
 
+MONTH_ORDER = [
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember"
+]
+
 
 def airtable_get(table_id, params=None):
     url = f"https://api.airtable.com/v0/{BASE_ID}/{table_id}"
@@ -73,7 +78,8 @@ def upload_attachment(record_id, field_id, file_bytes, filename, content_type):
 @app.route("/")
 def index():
     startups = airtable_get(TABLES["startup"], {"sort[0][field]": "Name", "sort[0][direction]": "asc"})
-    monate = airtable_get(TABLES["monate"], {"sort[0][field]": "Name", "sort[0][direction]": "asc"})
+    monate = airtable_get(TABLES["monate"])
+    monate.sort(key=lambda r: MONTH_ORDER.index(r["fields"].get("Name", "")) if r["fields"].get("Name", "") in MONTH_ORDER else 99)
     return render_template("form.html", startups=startups, monate=monate)
 
 
@@ -89,9 +95,16 @@ def submit():
         if not startup_id or not monat_id:
             return jsonify({"error": "Start-up und Monat sind Pflichtfelder."}), 400
 
+        # Look up names for the Startup-Month label
+        startup_records = airtable_get(TABLES["startup"], {"filterByFormula": f"RECORD_ID()='{startup_id}'"})
+        monat_records = airtable_get(TABLES["monate"], {"filterByFormula": f"RECORD_ID()='{monat_id}'"})
+        startup_name = startup_records[0]["fields"].get("Name", "") if startup_records else ""
+        monat_name = monat_records[0]["fields"].get("Name", "") if monat_records else ""
+
         fields = {
             "Start-up": [startup_id],
             "Monat": [monat_id],
+            "Startup-Month": f"{startup_name} – {monat_name}",
             "Allgemein": request.form.get("allgemein", ""),
             "Progress Product": request.form.get("progress_product", ""),
             "Progress Company": request.form.get("progress_company", ""),
