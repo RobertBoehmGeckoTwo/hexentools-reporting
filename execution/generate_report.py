@@ -39,6 +39,13 @@ TABLES = {
     "berichte": "tbli6e9i9WDkJvzH3",
 }
 
+BERICHTE_FIELDS = {
+    "Name": "fld729DdSAMyWqzwt",
+    "Start-up": "fldx1VaHINFIbMQXn",
+    "Monat": "fldLicRI00KTfqyWV",
+    "Bericht": "fldSgtTssxJik4SpW",
+}
+
 MONTH_ORDER = [
     "Januar", "Februar", "März", "April", "Mai", "Juni",
     "Juli", "August", "September", "Oktober", "November", "Dezember"
@@ -103,7 +110,6 @@ def fetch_previous_reports(startup_id):
 
 def upload_report_to_airtable(pdf_bytes, startup_id, monat_id, report_name):
     """Create a record in Berichte and upload the PDF as attachment."""
-    # Create record
     fields = {"Name": report_name, "Start-up": [startup_id]}
     if monat_id:
         fields["Monat"] = [monat_id]
@@ -116,32 +122,16 @@ def upload_report_to_airtable(pdf_bytes, startup_id, monat_id, report_name):
     create_resp.raise_for_status()
     record_id = create_resp.json()["id"]
 
-    # Upload PDF attachment
-    url = f"https://content.airtable.com/v0/{BASE_ID}/{record_id}/fldBericht/uploadAttachment"
-    # We need the actual field ID for Bericht
-    # First get it
-    schema_resp = requests.get(
-        f"https://api.airtable.com/v0/meta/bases/{BASE_ID}/tables",
-        headers={"Authorization": f"Bearer {TOKEN}"}
-    )
-    bericht_field_id = None
-    for table in schema_resp.json().get("tables", []):
-        if table["id"] == TABLES["berichte"]:
-            for field in table["fields"]:
-                if field["name"] == "Bericht":
-                    bericht_field_id = field["id"]
-                    break
-
-    if bericht_field_id:
-        upload_url = f"https://content.airtable.com/v0/{BASE_ID}/{record_id}/{bericht_field_id}/uploadAttachment"
-        upload_headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
-        payload = {
-            "contentType": "application/pdf",
-            "file": base64.b64encode(pdf_bytes).decode("utf-8"),
-            "filename": f"{report_name}.pdf",
-        }
-        upload_resp = requests.post(upload_url, headers=upload_headers, json=payload)
-        upload_resp.raise_for_status()
+    # Upload PDF using hardcoded field ID
+    upload_url = f"https://content.airtable.com/v0/{BASE_ID}/{record_id}/{BERICHTE_FIELDS['Bericht']}/uploadAttachment"
+    upload_headers = {"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"}
+    payload = {
+        "contentType": "application/pdf",
+        "file": base64.b64encode(pdf_bytes).decode("utf-8"),
+        "filename": f"{report_name}.pdf",
+    }
+    upload_resp = requests.post(upload_url, headers=upload_headers, json=payload)
+    upload_resp.raise_for_status()
 
     return record_id
 
