@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Start-up Reporting</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+      padding: 40px 16px 80px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 36px;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin-top: 6px;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    label .required { color: #e53e3e; margin-left: 2px; }
+    label .optional { color: #aaa; font-weight: 400; font-size: 0.8rem; margin-left: 4px; }
+
+    select, textarea {
+      width: 100%;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fafafa;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+
+    select:focus, textarea:focus {
+      outline: none;
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+      background: #fff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.5;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 520px) {
+      .row { grid-template-columns: 1fr; }
+    }
+
+    /* File upload */
+    .file-uploads {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 520px) {
+      .file-uploads { grid-template-columns: 1fr; }
+    }
+
+    .file-field label {
+      font-size: 0.8rem;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .file-drop {
+      border: 1.5px dashed #d0d0d0;
+      border-radius: 8px;
+      padding: 16px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      background: #fafafa;
+      position: relative;
+    }
+
+    .file-drop:hover, .file-drop.dragover {
+      border-color: #4f46e5;
+      background: #f3f0ff;
+    }
+
+    .file-drop input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-drop-icon {
+      font-size: 1.4rem;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .file-drop-text {
+      font-size: 0.75rem;
+      color: #888;
+    }
+
+    .file-name {
+      font-size: 0.72rem;
+      color: #4f46e5;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    /* Submit */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
+    }
+
+    .submit-btn:hover { background: #4338ca; }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn:disabled { background: #a5b4fc; cursor: not-allowed; }
+
+    /* Toast messages */
+    #toast {
+      display: none;
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      z-index: 9999;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    #toast.success { background: #22c55e; color: #fff; }
+    #toast.error   { background: #ef4444; color: #fff; }
+
+    /* Success overlay */
+    #success-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.95);
+      z-index: 1000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px;
+    }
+
+    #success-overlay.show { display: flex; }
+
+    .success-icon { font-size: 3.5rem; margin-bottom: 16px; }
+
+    #success-overlay h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    #success-overlay p { color: #555; margin-bottom: 28px; }
+
+    .another-btn {
+      padding: 12px 28px;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .another-btn:hover { background: #4338ca; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Start-up Reporting</h1>
+    <p>Monatliches Update einreichen</p>
+  </header>
+
+  <form id="reporting-form" enctype="multipart/form-data">
+
+    <!-- Start-up & Monat -->
+    <div class="card">
+      <div class="section-title">Allgemeine Angaben</div>
+      <div class="row">
+        <div class="field">
+          <label for="startup_id">Start-up <span class="required">*</span></label>
+          <select id="startup_id" name="startup_id" required>
+            <option value="">— bitte wählen —</option>
+            {% for s in startups %}
+            <option value="{{ s.id }}">{{ s.fields.get('Name', '(kein Name)') }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="monat_id">Monat <span class="required">*</span></label>
+          <select id="monat_id" name="monat_id" required>
+            <option value="">— bitte wählen —</option>
+            {% for m in monate %}
+            <option value="{{ m.id }}">{{ m.fields.get('Name', '(kein Name)') }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Updates -->
+    <div class="card">
+      <div class="section-title">Updates</div>
+
+      <div class="field">
+        <label for="allgemein">Allgemein <span class="optional">(optional)</span></label>
+        <textarea id="allgemein" name="allgemein" placeholder="Allgemeine Neuigkeiten und Highlights des Monats…"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="progress_product">Progress Product <span class="optional">(optional)</span></label>
+        <textarea id="progress_product" name="progress_product" placeholder="Was hat sich am Produkt getan?"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="progress_company">Progress Company <span class="optional">(optional)</span></label>
+        <textarea id="progress_company" name="progress_company" placeholder="Team, Finanzen, Partnerships…"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="progress_community">Progress Community <span class="optional">(optional)</span></label>
+        <textarea id="progress_community" name="progress_community" placeholder="Community-Wachstum, Events, Social Media…"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="releases">Releases <span class="optional">(optional)</span></label>
+        <textarea id="releases" name="releases" placeholder="Veröffentlichte Features, Updates oder Produkte…"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="herausforderungen">Herausforderungen <span class="optional">(optional)</span></label>
+        <textarea id="herausforderungen" name="herausforderungen" placeholder="Wo habt ihr gekämpft? Was hat nicht geklappt?"></textarea>
+      </div>
+    </div>
+
+    <!-- Attachments -->
+    <div class="card">
+      <div class="section-title">Anhänge <span style="font-weight:400;text-transform:none;letter-spacing:0">— bis zu 3 Dateien</span></div>
+      <div class="file-uploads">
+        {% for i in [1, 2, 3] %}
+        <div class="file-field">
+          <label>Anhang {{ "%02d"|format(i) }}</label>
+          <div class="file-drop" id="drop-{{ i }}">
+            <input type="file" name="anhang_0{{ i }}" id="file-{{ i }}" onchange="showFileName({{ i }}, this)" />
+            <div class="file-drop-icon">📎</div>
+            <div class="file-drop-text">Datei wählen</div>
+            <div class="file-name" id="fname-{{ i }}"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">Reporting einreichen</button>
+
+  </form>
+</div>
+
+<!-- Success overlay -->
+<div id="success-overlay">
+  <div class="success-icon">✅</div>
+  <h2>Reporting eingereicht!</h2>
+  <p>Danke — euer Update wurde erfolgreich gespeichert.</p>
+  <button class="another-btn" onclick="resetForm()">Weiteres Reporting einreichen</button>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+  function showFileName(i, input) {
+    const el = document.getElementById('fname-' + i);
+    el.textContent = input.files[0] ? input.files[0].name : '';
+  }
+
+  // Drag-over styling
+  document.querySelectorAll('.file-drop').forEach(drop => {
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+    drop.addEventListener('drop', () => drop.classList.remove('dragover'));
+  });
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = type;
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 4000);
+  }
+
+  function resetForm() {
+    document.getElementById('reporting-form').reset();
+    [1,2,3].forEach(i => document.getElementById('fname-' + i).textContent = '');
+    document.getElementById('success-overlay').classList.remove('show');
+  }
+
+  document.getElementById('reporting-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Wird eingereicht…';
+
+    try {
+      const formData = new FormData(e.target);
+      const resp = await fetch('/submit', { method: 'POST', body: formData });
+      const data = await resp.json();
+
+      if (data.success) {
+        document.getElementById('success-overlay').classList.add('show');
+      } else {
+        showToast(data.error || 'Unbekannter Fehler', 'error');
+      }
+    } catch (err) {
+      showToast('Netzwerkfehler — bitte nochmal versuchen.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Reporting einreichen';
+    }
+  });
+</script>
+</body>
+</html>
