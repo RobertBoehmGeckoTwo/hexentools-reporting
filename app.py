@@ -6,6 +6,7 @@ Flask web app that serves an HTML form and submits data to Airtable.
 import os
 import sys
 import requests
+from datetime import date
 from flask import Flask, render_template, request, jsonify, send_file
 from io import BytesIO
 from dotenv import load_dotenv
@@ -113,6 +114,7 @@ def submit():
             "Progress Community": request.form.get("progress_community", ""),
             "Releases": request.form.get("releases", ""),
             "Herausforderungen": request.form.get("herausforderungen", ""),
+            "Datum Reporting": date.today().isoformat(),
         }
 
         # Remove empty text fields but always keep linked records
