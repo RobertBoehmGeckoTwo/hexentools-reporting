@@ -292,33 +292,33 @@
       <div class="section-title">Updates</div>
 
       <div class="field">
-        <label for="allgemein">Allgemein <span class="optional">(optional)</span></label>
-        <textarea id="allgemein" name="allgemein" placeholder="Allgemeine Neuigkeiten und Highlights des Monats…"></textarea>
+        <label for="allgemein">Allgemein <span class="required">*</span></label>
+        <textarea id="allgemein" name="allgemein" placeholder="Allgemeine Neuigkeiten und Highlights des Monats…" required></textarea>
       </div>
 
       <div class="field">
-        <label for="progress_product">Progress Product <span class="optional">(optional)</span></label>
-        <textarea id="progress_product" name="progress_product" placeholder="Was hat sich am Produkt getan?"></textarea>
+        <label for="progress_product">Progress Product <span class="required">*</span></label>
+        <textarea id="progress_product" name="progress_product" placeholder="Was hat sich am Produkt getan?" required></textarea>
       </div>
 
       <div class="field">
-        <label for="progress_company">Progress Company <span class="optional">(optional)</span></label>
-        <textarea id="progress_company" name="progress_company" placeholder="Team, Finanzen, Partnerships…"></textarea>
+        <label for="progress_company">Progress Company <span class="required">*</span></label>
+        <textarea id="progress_company" name="progress_company" placeholder="Team, Finanzen, Partnerships…" required></textarea>
       </div>
 
       <div class="field">
-        <label for="progress_community">Progress Community <span class="optional">(optional)</span></label>
-        <textarea id="progress_community" name="progress_community" placeholder="Community-Wachstum, Events, Social Media…"></textarea>
+        <label for="progress_community">Progress Community <span class="required">*</span></label>
+        <textarea id="progress_community" name="progress_community" placeholder="Community-Wachstum, Events, Social Media…" required></textarea>
       </div>
 
       <div class="field">
-        <label for="releases">Releases <span class="optional">(optional)</span></label>
-        <textarea id="releases" name="releases" placeholder="Veröffentlichte Features, Updates oder Produkte…"></textarea>
+        <label for="releases">Releases <span class="required">*</span></label>
+        <textarea id="releases" name="releases" placeholder="Veröffentlichte Features, Updates oder Produkte…" required></textarea>
       </div>
 
       <div class="field">
-        <label for="herausforderungen">Herausforderungen <span class="optional">(optional)</span></label>
-        <textarea id="herausforderungen" name="herausforderungen" placeholder="Wo habt ihr gekämpft? Was hat nicht geklappt?"></textarea>
+        <label for="herausforderungen">Herausforderungen <span class="required">*</span></label>
+        <textarea id="herausforderungen" name="herausforderungen" placeholder="Wo habt ihr gekämpft? Was hat nicht geklappt?" required></textarea>
       </div>
     </div>
 
@@ -328,7 +328,7 @@
       <div class="file-uploads">
         {% for i in [1, 2, 3] %}
         <div class="file-field">
-          <label>Anhang {{ "%02d"|format(i) }}</label>
+          <label>Anhang {{ "%02d"|format(i) }} <span class="optional">(optional)</span></label>
           <div class="file-drop" id="drop-{{ i }}">
             <input type="file" name="anhang_0{{ i }}" id="file-{{ i }}" onchange="showFileName({{ i }}, this)" />
             <div class="file-drop-icon">📎</div>
