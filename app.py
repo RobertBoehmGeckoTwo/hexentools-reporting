@@ -15,7 +15,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "execution"))
 load_dotenv()
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50 MB max upload
+app.config["MAX_CONTENT_LENGTH"] = 4 * 1024 * 1024  # 4 MB (Vercel limit)
+
+
+@app.errorhandler(413)
+def too_large(e):
+    return jsonify({"error": "Datei zu groß — maximal 4 MB pro Anhang (Vercel-Limit)."}), 413
 
 TOKEN = os.getenv("AIRTABLE_TOKEN")
 BASE_ID = os.getenv("AIRTABLE_BASE_ID")

@@ -400,7 +400,7 @@
         showToast(data.error || 'Unbekannter Fehler', 'error');
       }
     } catch (err) {
-      showToast('Netzwerkfehler — bitte nochmal versuchen.', 'error');
+      showToast('Fehler: ' + (err.message || 'Netzwerkfehler — bitte nochmal versuchen.'), 'error');
     } finally {
       btn.disabled = false;
       btn.textContent = 'Reporting einreichen';
